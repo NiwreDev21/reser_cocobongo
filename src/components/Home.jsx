@@ -66,8 +66,8 @@ const Home = () => {
       <header className="main-header">
         <div className="header-content">
           <div className="logo-section">
-            <h1>🍹 Coco Bongo Lounge</h1>
-            <p>Sistema de Reservas Premium</p>
+            <h1>🍹 Coco Bongo</h1>
+            <p>Sistema de Reservas</p>
           </div>
           
           <nav className="main-nav">
@@ -152,8 +152,28 @@ const Home = () => {
             {activeSection === "inicio" && (
               <section className="content-section">
                 <div className="section-header">
-                  <h2>Bienvenido a Coco Bongo Lounge</h2>
-                  <p>El lugar perfecto para tus momentos especiales</p>
+                </div>
+
+                {/* Imagen Destacada */}
+                <div className="featured-image-container">
+                  <div className="featured-image">
+                    <img 
+                      src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                      alt="Ambiente exclusivo de Coco Bongo Lounge" 
+                    />
+                    <div className="featured-overlay">
+                      <div className="featured-content">
+                        <h3>Experiencia Única en Coco Bongo</h3>
+                        <p>Disfruta de nuestros exclusivos lounges, cócteles premium y ambiente sofisticado</p>
+                        <button 
+                          className="featured-btn"
+                          onClick={handleReservationClick}
+                        >
+                          Reservar Ahora
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Tarjetas de Estado Rápido */}
@@ -411,9 +431,17 @@ const Home = () => {
               <p>Sab-Dom: 20:00 - 04:00</p>
             </div>
           </div>
-          <div className="footer-bottom">
-            <p>&copy; 2024 Coco Bongo Lounge. Todos los derechos reservados.</p>
-          </div>
+<div className="footer-bottom">
+  <p>
+    &copy; 2025 Coco Bongo Lounge. Todos los derechos reservados. 
+    Nuestro sistema de reservas garantiza seguridad, privacidad y atención profesional a todos nuestros clientes. 
+    Para más información, consulte nuestra 
+    <a href="/privacy-policy">Política de Privacidad</a> y 
+    <a href="/terms">Términos y Condiciones</a>. 
+    Contacto y soporte disponible las 24 horas.
+  </p>
+</div>
+
         </footer>
       )}
     </div>

@@ -40,6 +40,7 @@ const Header = ({ onRefresh, onLogout, activeView, setActiveView, reservations, 
             <span className="logo-icon">🍹</span>
             <span className="logo-text">Coco Bongo Admin</span>
           </div>
+          
         </div>
 
         <div className="header-center">

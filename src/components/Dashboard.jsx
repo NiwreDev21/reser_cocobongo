@@ -57,7 +57,6 @@ const Dashboard = ({ reservations, tables }) => {
           </div>
         ))}
       </div>
-      
       <div className="chart-section">
         <div className="chart-container">
           <h3>Estado de Mesas</h3>

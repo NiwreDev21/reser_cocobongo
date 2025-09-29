@@ -6,7 +6,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.95); /* Mejor contraste */
-  background-color: #242424;
+  background-color: #000000;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -76,7 +76,7 @@ button:focus-visible {
 /* Mejoras para el modo claro */
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
+    color: #000000;
     background-color: #f8f9fa; /* Fondo más claro y agradable */
   }
   a:hover {

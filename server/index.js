@@ -31,7 +31,7 @@ const io = new Server(server, {
 // Configuración de CORS
 const corsOptions = {
   origin: [
-    'https://reser-cocobov3.vercel.app/',
+    'https://reser-cocobov3.vercel.app',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'https://localhost:5173'

@@ -1,6 +1,7 @@
 import express from 'express';
 import Reservation from '../models/Reservation.js';
 import Table from '../models/Table.js';
+import { emitTableUpdate, emitReservationUpdate } from '../index.js';
 
 const router = express.Router();
 
@@ -97,6 +98,10 @@ router.post('/', async (req, res) => {
       { tableNumber: parseInt(tableNumber) },
       { status: 'reserved' }
     );
+
+    // EMITIR ACTUALIZACIONES EN TIEMPO REAL
+    await emitTableUpdate();
+    await emitReservationUpdate();
     
     res.status(201).json({
       message: 'Reserva creada exitosamente',
@@ -128,6 +133,10 @@ router.put('/:id', async (req, res) => {
     if (!reservation) {
       return res.status(404).json({ message: 'Reserva no encontrada' });
     }
+
+    // EMITIR ACTUALIZACIONES EN TIEMPO REAL
+    await emitTableUpdate();
+    await emitReservationUpdate();
     
     res.json({
       message: 'Reserva actualizada exitosamente',
@@ -153,6 +162,10 @@ router.delete('/:id', async (req, res) => {
       { tableNumber: reservation.tableNumber },
       { status: 'available' }
     );
+
+    // EMITIR ACTUALIZACIONES EN TIEMPO REAL
+    await emitTableUpdate();
+    await emitReservationUpdate();
     
     res.json({ message: 'Reserva eliminada correctamente' });
   } catch (error) {

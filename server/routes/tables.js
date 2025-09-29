@@ -1,5 +1,6 @@
 import express from 'express';
 import Table from '../models/Table.js';
+import { emitTableUpdate, emitReservationUpdate } from '../index.js';
 
 const router = express.Router();
 
@@ -57,6 +58,9 @@ router.put('/:id', async (req, res) => {
     if (!table) {
       return res.status(404).json({ message: 'Mesa no encontrada' });
     }
+
+    // EMITIR ACTUALIZACIÓN EN TIEMPO REAL
+    await emitTableUpdate();
     
     res.json({
       message: 'Mesa actualizada exitosamente',
@@ -99,6 +103,9 @@ router.post('/', async (req, res) => {
     const table = new Table(tableData);
     const savedTable = await table.save();
 
+    // EMITIR ACTUALIZACIÓN EN TIEMPO REAL
+    await emitTableUpdate();
+
     res.status(201).json({
       message: 'Mesa creada exitosamente',
       table: savedTable
@@ -129,6 +136,9 @@ router.delete('/:id', async (req, res) => {
     if (!table) {
       return res.status(404).json({ message: 'Mesa no encontrada' });
     }
+
+    // EMITIR ACTUALIZACIÓN EN TIEMPO REAL
+    await emitTableUpdate();
     
     res.json({ 
       message: 'Mesa desactivada correctamente',
@@ -139,6 +149,7 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: 'Error al desactivar la mesa' });
   }
 });
+
 // GET obtener el número máximo de mesa
 router.get('/max-table-number', async (req, res) => {
   try {
@@ -178,6 +189,9 @@ router.put('/:id/activate', async (req, res) => {
     if (!table) {
       return res.status(404).json({ message: 'Mesa no encontrada' });
     }
+
+    // EMITIR ACTUALIZACIÓN EN TIEMPO REAL
+    await emitTableUpdate();
     
     res.json({
       message: 'Mesa activada exitosamente',

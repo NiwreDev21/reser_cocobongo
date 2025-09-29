@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { io } from 'socket.io-client';
 import Header from "./components/Header";
 import Dashboard from "./components/Dashboard";
 import TableGrid from "./components/TableGrid";
@@ -20,13 +21,60 @@ const App = () => {
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [socket, setSocket] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
 
   useEffect(() => {
+    // Configurar Socket.IO
+    const socketUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3001';
+    const newSocket = io(socketUrl, {
+      transports: ['websocket', 'polling']
+    });
+
+    newSocket.on('connect', () => {
+      console.log('🔌 Conectado al servidor WebSocket');
+      setConnectionStatus('connected');
+      
+      // Unirse a las salas para recibir actualizaciones
+      newSocket.emit('join-tables');
+      newSocket.emit('join-reservations');
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('❌ Desconectado del servidor WebSocket');
+      setConnectionStatus('disconnected');
+    });
+
+    newSocket.on('table-updated', (updatedTables) => {
+      console.log('🔄 Actualización de mesas recibida en tiempo real');
+      setTables(updatedTables);
+    });
+
+    newSocket.on('reservation-updated', (updatedReservations) => {
+      console.log('🔄 Actualización de reservas recibida en tiempo real');
+      setReservations(updatedReservations);
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('❌ Error de conexión WebSocket:', error);
+      setConnectionStatus('error');
+    });
+
+    setSocket(newSocket);
+
+    // Cargar datos iniciales
     fetchData();
+
+    // Verificar autenticación
     const adminSession = localStorage.getItem('adminSession');
     if (adminSession) {
       setIsAuthenticated(true);
     }
+
+    // Limpiar conexión al desmontar
+    return () => {
+      newSocket.disconnect();
+    };
   }, []);
 
   const fetchData = async () => {
@@ -55,6 +103,9 @@ const App = () => {
   const handleLogout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('adminSession');
+    if (socket) {
+      socket.disconnect();
+    }
   };
 
   const renderAdminContent = () => {
@@ -62,19 +113,56 @@ const App = () => {
       return <div className="loading">Cargando...</div>;
     }
 
+    const connectionIndicator = (
+      <div className={`connection-status ${connectionStatus}`}>
+        {connectionStatus === 'connected' ? '🟢 Tiempo real' : 
+         connectionStatus === 'error' ? '🔴 Sin conexión' : '🟡 Conectando...'}
+      </div>
+    );
+
     switch (activeView) {
       case "dashboard":
-        return <AdminDashboard reservations={reservations} tables={tables} onRefresh={fetchData} />;
+        return (
+          <>
+            {connectionIndicator}
+            <AdminDashboard reservations={reservations} tables={tables} onRefresh={fetchData} />
+          </>
+        );
       case "tables":
-        return <TableGrid tables={tables} reservations={reservations} onUpdate={fetchData} />;
+        return (
+          <>
+            {connectionIndicator}
+            <TableGrid tables={tables} reservations={reservations} onUpdate={fetchData} />
+          </>
+        );
       case "table-management":
-        return <TableManager tables={tables} onUpdate={fetchData} />;
+        return (
+          <>
+            {connectionIndicator}
+            <TableManager tables={tables} onUpdate={fetchData} />
+          </>
+        );
       case "reservations":
-        return <ReservationManager reservations={reservations} onUpdate={fetchData} />;
+        return (
+          <>
+            {connectionIndicator}
+            <ReservationManager reservations={reservations} onUpdate={fetchData} />
+          </>
+        );
       case "statistics":
-        return <Statistics reservations={reservations} tables={tables} />;
+        return (
+          <>
+            {connectionIndicator}
+            <Statistics reservations={reservations} tables={tables} />
+          </>
+        );
       default:
-        return <AdminDashboard reservations={reservations} tables={tables} onRefresh={fetchData} />;
+        return (
+          <>
+            {connectionIndicator}
+            <AdminDashboard reservations={reservations} tables={tables} onRefresh={fetchData} />
+          </>
+        );
     }
   };
 
@@ -83,7 +171,14 @@ const App = () => {
       <div className="app">
         <Routes>
           {/* Ruta pública para clientes */}
-          <Route path="/" element={<Home reservations={reservations} tables={tables} loading={loading} />} />
+          <Route path="/" element={
+            <Home 
+              reservations={reservations} 
+              tables={tables} 
+              loading={loading} 
+              connectionStatus={connectionStatus}
+            />
+          } />
           
           {/* Ruta de reserva para clientes */}
           <Route path="/reservar" element={<ClientReservation />} />
@@ -106,6 +201,7 @@ const App = () => {
                   onLogout={handleLogout}
                   reservations={reservations}
                   tables={tables}
+                  connectionStatus={connectionStatus}
                 />
                 <div className="admin-content">
                   <div className="content-wrapper">
